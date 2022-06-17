@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using BattleScene.Replay;
+using UnityEngine;
 
 public class BulletBase : MonoBehaviour
 {
@@ -49,7 +50,13 @@ public class BulletBase : MonoBehaviour
 
     public virtual void Logic_Collision()
     {
-        if (BattleCon.Instance.obstacleManage.AttackObstacle(objShape.ObjUid, objShape.GetPosition(),
+        if (null != ReplayBattleCon.Instance)
+        {
+            if (ReplayBattleCon.Instance.obstacleManage.AttackObstacle(objShape.ObjUid, objShape.GetPosition(),
+                    objShape.GetRadius(), 1)) curLife = 0;
+        }
+        else
+            if (BattleCon.Instance.obstacleManage.AttackObstacle(objShape.ObjUid, objShape.GetPosition(),
                 objShape.GetRadius(), 1)) curLife = 0;
     }
 

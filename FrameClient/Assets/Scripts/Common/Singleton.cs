@@ -4,7 +4,7 @@ using System;
 /// 普通类的单例
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class Singleton<T> : ISingleton where T : Singleton<T>
+public abstract class Singleton<T> : ISingleton where T : Singleton<T>, new()
 {
     /// <summary>
     /// 静态实例
@@ -24,12 +24,9 @@ public abstract class Singleton<T> : ISingleton where T : Singleton<T>
     {
         get
         {
-            lock (mLock)
+            if (mInstance == null)
             {
-                if (mInstance == null)
-                {
-                    mInstance = new object() as T;
-                }
+                mInstance = new T();
             }
 
             return mInstance;

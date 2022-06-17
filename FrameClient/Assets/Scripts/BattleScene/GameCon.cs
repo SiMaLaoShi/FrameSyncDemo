@@ -7,7 +7,6 @@ public class GameCon : MonoBehaviour
     public UIGameOver uiGameOver;
     public GameObject uiReady;
     public Transform mapTranform;
-    public bool isReplay = true;
 
     private void Start()
     {
@@ -15,7 +14,6 @@ public class GameCon : MonoBehaviour
         {
             uiReady.SetActive(true);
             var battleCon = gameObject.AddComponent<BattleCon>();
-            battleCon.IsReplay = isReplay;
             battleCon.delegate_readyOver = ReadyFinish;
             battleCon.delegate_gameOver = GameOver;
             battleCon.InitData(mapTranform);

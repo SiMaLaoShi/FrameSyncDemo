@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using PBBattle;
 using UnityEngine;
 
@@ -17,8 +16,6 @@ public class BattleCon : MonoBehaviour
     private bool isBattleFinish;
 
     private bool isBattleStart;
-
-    public bool IsReplay { get; set; }
 
     public static BattleCon Instance { get; private set; }
 
@@ -117,18 +114,6 @@ public class BattleCon : MonoBehaviour
         BattleData.Instance.AddNewFrameData(_mes.frameID, _mes.operations);
         BattleData.Instance.netPack++;
     }
-    
-    public void SaveReplay()
-    {
-        var fs = File.Create(Path.Combine(System.Environment.CurrentDirectory, "BattleReplay.bytes"));
-        var offset = 0;
-        foreach (var frame in frames)
-        {
-            fs.Write(frame.Value, offset, frame.Value.Length);
-            offset += frame.Value.Length;
-        }   
-        fs.Close();
-    }
 
     //逻辑帧更新
     private void LogicUpdate()
@@ -156,7 +141,6 @@ public class BattleCon : MonoBehaviour
 
     public void OnClickGameOver()
     {
-        SaveReplay();
         BeginGameOver();
     }
 

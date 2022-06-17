@@ -12,8 +12,6 @@ public class BattleData
     private static BattleData instance;
     public int battleID;
 
-    private int curFramID;
-
     private int curOperationID;
     private readonly Dictionary<int, AllPlayerOperation> dic_frameDate;
     private readonly Dictionary<int, int> dic_rightOperationID;
@@ -53,7 +51,7 @@ public class BattleData
         GlobalData.Instance()
             .GetFileStringFromStreamingAssets("Desktopspeed.txt", _fileStr => { InitSpeedInfo(_fileStr); });
 
-        curFramID = 0;
+        FrameId = 0;
         maxFrameID = 0;
         maxSendNum = 5;
 
@@ -61,6 +59,8 @@ public class BattleData
         dic_rightOperationID = new Dictionary<int, int>();
         dic_frameDate = new Dictionary<int, AllPlayerOperation>();
     }
+
+    public int FrameId { get; private set; }
 
     public static BattleData Instance
     {
@@ -97,7 +97,7 @@ public class BattleData
         selfOperation.move = 121;
         ResetRightOperation();
 
-        curFramID = 0;
+        FrameId = 0;
         maxFrameID = 0;
         maxSendNum = 5;
 
@@ -105,16 +105,7 @@ public class BattleData
         dic_rightOperationID.Clear();
         dic_frameDate.Clear();
     }
-
-    public void SaveFrameOp()
-    {
-        foreach (var operation in dic_frameDate)
-        {
-            
-        }
-    }
-
-
+    
     public void Destory()
     {
         list_battleUser.Clear();
@@ -253,12 +244,12 @@ public class BattleData
 
     public bool TryGetNextPlayerOp(out AllPlayerOperation _op)
     {
-        var _frameID = curFramID + 1;
+        var _frameID = FrameId + 1;
         return dic_frameDate.TryGetValue(_frameID, out _op);
     }
 
     public void RunOpSucces()
     {
-        curFramID++;
+        FrameId++;
     }
 }

@@ -1,4 +1,5 @@
-﻿using PBBattle;
+﻿using BattleScene.Replay;
+using PBBattle;
 using PBCommon;
 using PBMatch;
 using UnityEngine;
@@ -54,6 +55,7 @@ public class MainCon : MonoBehaviour
 
     private void Message_Enter_Battle(TcpEnterBattle _mes)
     {
+        ReplaySystem.Instance.AddTcpEnterBattle(_mes);
         BattleData.Instance.UpdateBattleInfo(_mes.randSeed, _mes.battleUserInfo);
 
         ClearSceneData.LoadScene(GameConfig.battleScene);

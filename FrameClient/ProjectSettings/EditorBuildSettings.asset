@@ -17,3 +17,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ClearScene.unity
     guid: e3591477c3a2647b08d7f3ed433e40b2
+  - enabled: 1
+    path: Assets/Scenes/ReplayScene.unity
+    guid: 126f9da3b96fd2e45afcafa7060c36a3

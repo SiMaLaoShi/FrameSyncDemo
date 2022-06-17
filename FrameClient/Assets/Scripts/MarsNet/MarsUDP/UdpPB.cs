@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BattleScene.Replay;
 using PBBattle;
 using PBCommon;
 
@@ -124,24 +125,28 @@ public class UdpPB
             case SCID.UDP_BATTLE_START:
             {
                 var pb_ReceiveMes = CSData.DeserializeData<UdpBattleStart>(bodyData);
+                ReplaySystem.Instance.AddFrame(BattleData.Instance.FrameId, bodyData, SCID.UDP_BATTLE_START);
                 NetGlobal.Instance().AddAction(() => { mes_battle_start(pb_ReceiveMes); });
             }
                 break;
             case SCID.UDP_DOWN_FRAME_OPERATIONS:
             {
                 var pb_ReceiveMes = CSData.DeserializeData<UdpDownFrameOperations>(bodyData);
+                ReplaySystem.Instance.AddFrame(BattleData.Instance.FrameId, bodyData, SCID.UDP_DOWN_FRAME_OPERATIONS);
                 NetGlobal.Instance().AddAction(() => { mes_frame_operation(pb_ReceiveMes); });
             }
                 break;
             case SCID.UDP_DOWN_DELTA_FRAMES:
             {
                 var pb_ReceiveMes = CSData.DeserializeData<UdpDownDeltaFrames>(bodyData);
+                ReplaySystem.Instance.AddFrame(BattleData.Instance.FrameId, bodyData, SCID.UDP_DOWN_DELTA_FRAMES);
                 NetGlobal.Instance().AddAction(() => { mes_delta_frame_data(pb_ReceiveMes); });
             }
                 break;
             case SCID.UDP_DOWN_GAME_OVER:
             {
                 var pb_ReceiveMes = CSData.DeserializeData<UdpDownGameOver>(bodyData);
+                ReplaySystem.Instance.AddFrame(BattleData.Instance.FrameId, bodyData, SCID.UDP_DOWN_GAME_OVER);
                 NetGlobal.Instance().AddAction(() => { mes_down_game_over(pb_ReceiveMes); });
             }
                 break;

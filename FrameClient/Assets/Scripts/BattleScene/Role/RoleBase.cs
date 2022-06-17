@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using BattleScene.Replay;
+using UnityEngine;
 
 [RequireComponent(typeof(ShapeCircle))]
 public class RoleBase : MonoBehaviour
@@ -73,7 +74,10 @@ public class RoleBase : MonoBehaviour
         var _bulletPos = objShape.GetPosition() +
                          ToolMethod.Logic2Config(objShape.GetRadius()) *
                          BattleData.Instance.GetSpeed(roleDirection);
-        BattleCon.Instance.bulletManage.AddBullet(objShape.ObjUid.objectID, _bulletPos, roleDirection);
+        if (ReplaySystem.Instance.IsReplayIng)
+            ReplayBattleCon.Instance.bulletManage.AddBullet(objShape.ObjUid.objectID, _bulletPos, roleDirection);
+        else
+            BattleCon.Instance.bulletManage.AddBullet(objShape.ObjUid.objectID, _bulletPos, roleDirection);
     }
 
 
@@ -92,9 +96,19 @@ public class RoleBase : MonoBehaviour
     public virtual void Logic_Move_Correction()
     {
         GameVector2 _ccLogicPos;
-        if (BattleCon.Instance.obstacleManage.CollisionCorrection(objShape.GetPosition(), objShape.GetRadius(),
-                out _ccLogicPos))
-            UpdateLogicPosition(_ccLogicPos);
+        if (ReplaySystem.Instance.IsReplayIng)
+        {
+            if (ReplayBattleCon.Instance.obstacleManage.CollisionCorrection(objShape.GetPosition(), objShape.GetRadius(),
+                    out _ccLogicPos))
+                UpdateLogicPosition(_ccLogicPos);
+        }
+        else
+        {
+            if (BattleCon.Instance.obstacleManage.CollisionCorrection(objShape.GetPosition(), objShape.GetRadius(),
+                    out _ccLogicPos))
+                UpdateLogicPosition(_ccLogicPos);
+        }
+       
     }
 
     private void UpdateLogicPosition(GameVector2 _logicPos)

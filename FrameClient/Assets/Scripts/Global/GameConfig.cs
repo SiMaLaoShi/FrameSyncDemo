@@ -4,4 +4,5 @@
     public const int mainScene = 1;
     public const int battleScene = 2;
     public const int clearScene = 3;
+    public const int replayScene = 4;
 }
