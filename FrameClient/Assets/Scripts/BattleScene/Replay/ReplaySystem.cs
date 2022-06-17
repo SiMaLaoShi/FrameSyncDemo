@@ -91,6 +91,7 @@ namespace BattleScene.Replay
         {
             if (renderByteIdx >= serverBytes.Count)
             {
+                Debug.Log("回放结束");
                 IsReplayIng = false;
                 return;
             }
