@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using ProtoBuf.Meta;
 
 namespace ProtoBuf
@@ -26,6 +27,7 @@ namespace ProtoBuf
                 if (rootObject == null) throw new ProtoException("No root object assigned");
                 return rootObject;
             }
+
             BasicList list = List;
 
             if (key < 0 || key >= list.Count)
@@ -34,11 +36,8 @@ namespace ProtoBuf
                 throw new ProtoException("Internal error; a missing key occurred");
             }
 
-            object tmp = list[key];
-            if (tmp == null)
-            {
-                throw new ProtoException("A deferred key does not have a value yet");
-            }
+            var tmp = list[key];
+            if (tmp == null) throw new ProtoException("A deferred key does not have a value yet");
             return tmp;
         }
 
@@ -47,23 +46,20 @@ namespace ProtoBuf
             if (key-- == Root)
             {
                 if (value == null) throw new ArgumentNullException("value");
-                if (rootObject != null && ((object)rootObject != (object)value)) throw new ProtoException("The root object cannot be reassigned");
+                if (rootObject != null && rootObject != value)
+                    throw new ProtoException("The root object cannot be reassigned");
                 rootObject = value;
             }
             else
             {
-                MutableList list = List;
+                var list = List;
                 if (key < list.Count)
                 {
-                    object oldVal = list[key];
+                    var oldVal = list[key];
                     if (oldVal == null)
-                    {
                         list[key] = value;
-                    }
-                    else if (!ReferenceEquals(oldVal, value) )
-                    {
+                    else if (!ReferenceEquals(oldVal, value))
                         throw new ProtoException("Reference-tracked objects cannot change reference");
-                    } // otherwise was the same; nothing to do
                 }
                 else if (key != list.Add(value))
                 {
@@ -73,22 +69,23 @@ namespace ProtoBuf
         }
 
         private object rootObject;
+
         internal int AddObjectKey(object value, out bool existing)
         {
             if (value == null) throw new ArgumentNullException("value");
 
-            if ((object)value == (object)rootObject) // (object) here is no-op, but should be
-            {                                        // preserved even if this was typed - needs ref-check
+            if (value == rootObject) // (object) here is no-op, but should be
+            {
+                // preserved even if this was typed - needs ref-check
                 existing = true;
                 return Root;
             }
 
-            string s = value as string;
+            var s = value as string;
             BasicList list = List;
             int index;
 
 #if NO_GENERICS
-            
             if(s == null)
             {
                 if (objectKeys == null)
@@ -117,14 +114,14 @@ namespace ProtoBuf
             }
 #else
 
-            if(s == null)
+            if (s == null)
             {
 #if CF || PORTABLE // CF has very limited proper object ref-tracking; so instead, we'll search it the hard way
                 index = list.IndexOfReference(value);
 #else
-                if (objectKeys == null) 
+                if (objectKeys == null)
                 {
-                    objectKeys = new System.Collections.Generic.Dictionary<object, int>(ReferenceComparer.Default);
+                    objectKeys = new Dictionary<object, int>(ReferenceComparer.Default);
                     index = -1;
                 }
                 else
@@ -137,9 +134,9 @@ namespace ProtoBuf
             {
                 if (stringKeys == null)
                 {
-                    stringKeys = new System.Collections.Generic.Dictionary<string, int>();
+                    stringKeys = new Dictionary<string, int>();
                     index = -1;
-                } 
+                }
                 else
                 {
                     if (!stringKeys.TryGetValue(s, out index)) index = -1;
@@ -162,11 +159,12 @@ namespace ProtoBuf
                     stringKeys.Add(s, index);
                 }
             }
+
             return index + 1;
         }
 
         private int trapStartIndex; // defaults to 0 - optimization for RegisterTrappedObject
-                                    // to make it faster at seeking to find deferred-objects
+        // to make it faster at seeking to find deferred-objects
 
         internal void RegisterTrappedObject(object value)
         {
@@ -176,21 +174,19 @@ namespace ProtoBuf
             }
             else
             {
-                if(underlyingList != null)
-                {
-                    for (int i = trapStartIndex; i < underlyingList.Count; i++)
+                if (underlyingList != null)
+                    for (var i = trapStartIndex; i < underlyingList.Count; i++)
                     {
                         trapStartIndex = i + 1; // things never *become* null; whether or
-                                                // not the next item is null, it will never
-                                                // need to be checked again
+                        // not the next item is null, it will never
+                        // need to be checked again
 
-                        if(underlyingList[i] == null)
+                        if (underlyingList[i] == null)
                         {
-                            underlyingList[i] = value;    
+                            underlyingList[i] = value;
                             break;
                         }
                     }
-                }
             }
         }
 #if NO_GENERICS
@@ -206,26 +202,29 @@ namespace ProtoBuf
             {
                 return item == key;
             }
-        }   
+        }
 #else
 
-        private System.Collections.Generic.Dictionary<string, int> stringKeys;
+        private Dictionary<string, int> stringKeys;
 
 #if !CF && !PORTABLE // CF lacks the ability to get a robust reference-based hash-code, so we'll do it the harder way instead
-        private System.Collections.Generic.Dictionary<object, int> objectKeys;
-        private sealed class ReferenceComparer : System.Collections.Generic.IEqualityComparer<object>
+        private Dictionary<object, int> objectKeys;
+        private sealed class ReferenceComparer : IEqualityComparer<object>
         {
-            public readonly static ReferenceComparer Default = new ReferenceComparer();
-            private ReferenceComparer() {}
+            public static readonly ReferenceComparer Default = new ReferenceComparer();
 
-            bool System.Collections.Generic.IEqualityComparer<object>.Equals(object x, object y)
+            private ReferenceComparer()
+            {
+            }
+
+            bool IEqualityComparer<object>.Equals(object x, object y)
             {
                 return x == y; // ref equality
             }
 
-            int System.Collections.Generic.IEqualityComparer<object>.GetHashCode(object obj)
+            int IEqualityComparer<object>.GetHashCode(object obj)
             {
-                return System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
+                return RuntimeHelpers.GetHashCode(obj);
             }
         }
 #endif

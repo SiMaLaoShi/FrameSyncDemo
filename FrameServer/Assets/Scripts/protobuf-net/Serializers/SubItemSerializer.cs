@@ -1,7 +1,6 @@
 ﻿#if !NO_RUNTIME
 using System;
 using ProtoBuf.Meta;
-
 #if FEAT_COMPILER
 #if FEAT_IKVM
 using IKVM.Reflection.Emit;
@@ -13,12 +12,13 @@ using System.Reflection.Emit;
 
 namespace ProtoBuf.Serializers
 {
-    sealed class SubItemSerializer : IProtoTypeSerializer
+    internal sealed class SubItemSerializer : IProtoTypeSerializer
     {
         bool IProtoTypeSerializer.HasCallbacks(TypeModel.CallbackType callbackType)
         {
             return ((IProtoTypeSerializer)proxy.Serializer).HasCallbacks(callbackType);
         }
+
         bool IProtoTypeSerializer.CanCreateInstance()
         {
             return ((IProtoTypeSerializer)proxy.Serializer).CanCreateInstance();
@@ -34,10 +34,12 @@ namespace ProtoBuf.Serializers
         }
 #endif
 #if !FEAT_IKVM
-        void IProtoTypeSerializer.Callback(object value, TypeModel.CallbackType callbackType, SerializationContext context)
+        void IProtoTypeSerializer.Callback(object value, TypeModel.CallbackType callbackType,
+            SerializationContext context)
         {
             ((IProtoTypeSerializer)proxy.Serializer).Callback(value, callbackType, context);
         }
+
         object IProtoTypeSerializer.CreateInstance(ProtoReader source)
         {
             return ((IProtoTypeSerializer)proxy.Serializer).CreateInstance(source);
@@ -48,34 +50,41 @@ namespace ProtoBuf.Serializers
         private readonly Type type;
         private readonly ISerializerProxy proxy;
         private readonly bool recursionCheck;
+
         public SubItemSerializer(Type type, int key, ISerializerProxy proxy, bool recursionCheck)
         {
             if (type == null) throw new ArgumentNullException("type");
             if (proxy == null) throw new ArgumentNullException("proxy");
             this.type = type;
-            this.proxy= proxy;
+            this.proxy = proxy;
             this.key = key;
             this.recursionCheck = recursionCheck;
         }
+
         Type IProtoSerializer.ExpectedType
         {
             get { return type; }
         }
-        bool IProtoSerializer.RequiresOldValue { get { return true; } }
-        bool IProtoSerializer.ReturnsValue { get { return true; } }
+
+        bool IProtoSerializer.RequiresOldValue
+        {
+            get { return true; }
+        }
+
+        bool IProtoSerializer.ReturnsValue
+        {
+            get { return true; }
+        }
 
 #if !FEAT_IKVM
         void IProtoSerializer.Write(object value, ProtoWriter dest)
         {
             if (recursionCheck)
-            {
                 ProtoWriter.WriteObject(value, key, dest);
-            }
             else
-            {
                 ProtoWriter.WriteRecursionSafeObject(value, key, dest);
-            }
         }
+
         object IProtoSerializer.Read(object value, ProtoReader source)
         {
             return ProtoReader.ReadObject(value, key, source);

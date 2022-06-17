@@ -527,7 +527,8 @@ namespace ProtoBuf.Compiler
         private MethodInfo GetWriterMethod(string methodName)
         {
             Type writerType = MapType(typeof(ProtoWriter));
-            MethodInfo[] methods = writerType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            MethodInfo[] methods =
+ writerType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
             foreach (MethodInfo method in methods)
             {
                 if(method.Name != methodName) continue;
@@ -597,12 +598,12 @@ namespace ProtoBuf.Compiler
                     {
                         LoadAddress(valOrNull, type);
                         LoadValue(type.GetProperty("HasValue"));
-                        CodeLabel @end = DefineLabel();
-                        BranchIfFalse(@end, false);
+                        CodeLabel end = DefineLabel();
+                        BranchIfFalse(end, false);
                         LoadAddress(valOrNull, type);
                         EmitCall(type.GetMethod("GetValueOrDefault", Helpers.EmptyTypes));
                         tail.EmitWrite(this, null);
-                        MarkLabel(@end);
+                        MarkLabel(end);
                     }
                 }
             }
@@ -610,13 +611,13 @@ namespace ProtoBuf.Compiler
             { // ref-type; do a null-check
                 LoadValue(valueFrom);
                 CopyValue();
-                CodeLabel hasVal = DefineLabel(), @end = DefineLabel();
+                CodeLabel hasVal = DefineLabel(), end = DefineLabel();
                 BranchIfTrue(hasVal, true);
                 DiscardValue();
-                Branch(@end, false);
+                Branch(end, false);
                 MarkLabel(hasVal);
                 tail.EmitWrite(this, null);
-                MarkLabel(@end);
+                MarkLabel(end);
             }
         }
 
@@ -679,7 +680,7 @@ namespace ProtoBuf.Compiler
             }
             else
             {
-                ConstructorInfo ctor =  Helpers.GetConstructor(type
+                ConstructorInfo ctor = Helpers.GetConstructor(type
 #if COREFX
                 .GetTypeInfo()
 #endif
@@ -773,13 +774,15 @@ namespace ProtoBuf.Compiler
                     TypeInfo ti = (TypeInfo)member;
                     do
                     {
-                        isPublic = ti.IsNestedPublic || ti.IsPublic || ((ti.IsNested || ti.IsNestedAssembly || ti.IsNestedFamORAssem) && InternalsVisible(ti.Assembly));
+                        isPublic =
+ ti.IsNestedPublic || ti.IsPublic || ((ti.IsNested || ti.IsNestedAssembly || ti.IsNestedFamORAssem) && InternalsVisible(ti.Assembly));
                     } while (isPublic && ti.IsNested && (ti = ti.DeclaringType.GetTypeInfo()) != null);
                 }
                 else if (member is FieldInfo)
                 {
                     FieldInfo field = ((FieldInfo)member);
-                    isPublic = field.IsPublic || ((field.IsAssembly || field.IsFamilyOrAssembly) && InternalsVisible(Helpers.GetAssembly(field.DeclaringType)));
+                    isPublic =
+ field.IsPublic || ((field.IsAssembly || field.IsFamilyOrAssembly) && InternalsVisible(Helpers.GetAssembly(field.DeclaringType)));
                 }
                 else if (member is PropertyInfo)
                 {
@@ -788,12 +791,14 @@ namespace ProtoBuf.Compiler
                 else if (member is ConstructorInfo)
                 {
                     ConstructorInfo ctor = ((ConstructorInfo)member);
-                    isPublic = ctor.IsPublic || ((ctor.IsAssembly || ctor.IsFamilyOrAssembly) && InternalsVisible(Helpers.GetAssembly(ctor.DeclaringType)));
+                    isPublic =
+ ctor.IsPublic || ((ctor.IsAssembly || ctor.IsFamilyOrAssembly) && InternalsVisible(Helpers.GetAssembly(ctor.DeclaringType)));
                 }
                 else if (member is MethodInfo)
                 {
                     MethodInfo method = ((MethodInfo)member);
-                    isPublic = method.IsPublic || ((method.IsAssembly || method.IsFamilyOrAssembly) && InternalsVisible(Helpers.GetAssembly(method.DeclaringType)));
+                    isPublic =
+ method.IsPublic || ((method.IsAssembly || method.IsFamilyOrAssembly) && InternalsVisible(Helpers.GetAssembly(method.DeclaringType)));
                     if (!isPublic)
                     {
                         // allow calls to TypeModel protected methods, and methods we are in the process of creating
@@ -820,20 +825,25 @@ namespace ProtoBuf.Compiler
                         type = (Type)member;
                         do
                         {
-                            isPublic = type.IsNestedPublic || type.IsPublic || ((type.DeclaringType == null || type.IsNestedAssembly || type.IsNestedFamORAssem) && InternalsVisible(type.Assembly));
-                        } while (isPublic && (type = type.DeclaringType) != null); // ^^^ !type.IsNested, but not all runtimes have that
+                            isPublic =
+ type.IsNestedPublic || type.IsPublic || ((type.DeclaringType == null || type.IsNestedAssembly || type.IsNestedFamORAssem) && InternalsVisible(type.Assembly));
+                        } while (isPublic && (type =
+ type.DeclaringType) != null); // ^^^ !type.IsNested, but not all runtimes have that
                         break;
                     case MemberTypes.Field:
                         FieldInfo field = ((FieldInfo)member);
-                        isPublic = field.IsPublic || ((field.IsAssembly || field.IsFamilyOrAssembly) && InternalsVisible(field.DeclaringType.Assembly));
+                        isPublic =
+ field.IsPublic || ((field.IsAssembly || field.IsFamilyOrAssembly) && InternalsVisible(field.DeclaringType.Assembly));
                         break;
                     case MemberTypes.Constructor:
                         ConstructorInfo ctor = ((ConstructorInfo)member);
-                        isPublic = ctor.IsPublic || ((ctor.IsAssembly || ctor.IsFamilyOrAssembly) && InternalsVisible(ctor.DeclaringType.Assembly));
+                        isPublic =
+ ctor.IsPublic || ((ctor.IsAssembly || ctor.IsFamilyOrAssembly) && InternalsVisible(ctor.DeclaringType.Assembly));
                         break;
                     case MemberTypes.Method:
                         MethodInfo method = ((MethodInfo)member);
-                        isPublic = method.IsPublic || ((method.IsAssembly || method.IsFamilyOrAssembly) && InternalsVisible(method.DeclaringType.Assembly));
+                        isPublic =
+ method.IsPublic || ((method.IsAssembly || method.IsFamilyOrAssembly) && InternalsVisible(method.DeclaringType.Assembly));
                         if (!isPublic)
                         {
                             // allow calls to TypeModel protected methods, and methods we are in the process of creating

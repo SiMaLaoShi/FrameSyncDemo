@@ -1,53 +1,71 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-public class UICon : MonoBehaviour {
 
-	public Text serverIP;
-	public InputField input;
-	public Button startserver;
+public class UICon : MonoBehaviour
+{
+    public Text serverIP;
+    public InputField input;
+    public Button startserver;
 
-	public RectTransform logContent;
-	private GameObject logTextPrefab;
-	private float logTextHeght;
-	private int logTextNum;
-	void Start () {
-		Screen.sleepTimeout = SleepTimeout.NeverSleep;
-		serverIP.text = ServerGlobal.Instance.serverIp;
+    public RectTransform logContent;
 
-		ServerConfig.battleUserNum = PlayerPrefs.GetInt ("battleNumber",1);
-		input.text = ServerConfig.battleUserNum.ToString();
+    private readonly List<string> logs = new List<string>();
+    private float logTextHeght;
+    private int logTextNum;
+    private GameObject logTextPrefab;
 
-		logTextPrefab = Resources.Load<GameObject> ("LogText");
-		logTextHeght = 60f;
-		logTextNum = 0;
+    private void Start()
+    {
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+        serverIP.text = ServerGlobal.Instance.serverIp;
 
-		LogManage.Instance.logChange = LogChange;
-	}
+        ServerConfig.battleUserNum = PlayerPrefs.GetInt("battleNumber", 1);
+        input.text = ServerConfig.battleUserNum.ToString();
 
-	public void StartServer(){
-		int _number;
-		if (int.TryParse(input.text,out _number)){
-			ServerConfig.battleUserNum = _number;
-			PlayerPrefs.SetInt("battleNumber",_number);
-		}
+        logTextPrefab = Resources.Load<GameObject>("LogText");
+        logTextHeght = 60f;
+        logTextNum = 0;
 
-		input.interactable = false;
-		startserver.interactable = false;
+        LogManage.Instance.logChange = LogChange;
+    }
 
-		ServerTcp.Instance.StartServer ();
-		UdpManager.Instance.Creat ();
-	}
+    private void Update()
+    {
+        for (var i = 0; i < logs.Count; i++) PushLog(logs[i]);
+        logs.Clear();
+    }
 
-	void LogChange(string _log){
-		GameObject _logObj = Instantiate (logTextPrefab,logContent);
-		RectTransform _logTextTran = _logObj.GetComponent<RectTransform> ();
-		_logTextTran.anchoredPosition = new Vector2 (0,-logTextNum * logTextHeght);
-		_logObj.GetComponent<Text> ().text = _log;
+    public void StartServer()
+    {
+        int _number;
+        if (int.TryParse(input.text, out _number))
+        {
+            ServerConfig.battleUserNum = _number;
+            PlayerPrefs.SetInt("battleNumber", _number);
+        }
 
-		logTextNum++;
-		logContent.sizeDelta = new Vector2 (logContent.sizeDelta.x,logTextNum * logTextHeght);
-	}
-		
+        input.interactable = false;
+        startserver.interactable = false;
+
+        ServerTcp.Instance.StartServer();
+        UdpManager.Instance.Creat();
+    }
+
+    private void PushLog(string _log)
+    {
+        var _logObj = Instantiate(logTextPrefab, logContent);
+        var _logTextTran = _logObj.GetComponent<RectTransform>();
+        _logTextTran.anchoredPosition = new Vector2(0, -logTextNum * logTextHeght);
+        _logObj.GetComponent<Text>().text = _log;
+
+        logTextNum++;
+        logContent.sizeDelta = new Vector2(logContent.sizeDelta.x, logTextNum * logTextHeght);
+    }
+
+    private void LogChange(string _log)
+    {
+        logs.Add(_log);
+        Debug.Log(_log);
+    }
 }

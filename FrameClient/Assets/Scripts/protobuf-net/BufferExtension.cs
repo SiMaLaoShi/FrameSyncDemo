@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace ProtoBuf
 {
     /// <summary>
-    /// Provides a simple buffer-based implementation of an <see cref="IExtension">extension</see> object.
+    ///     Provides a simple buffer-based implementation of an <see cref="IExtension">extension</see> object.
     /// </summary>
     public sealed class BufferExtension : IExtension
     {
@@ -27,17 +26,19 @@ namespace ProtoBuf
                 int len;
                 if (commit && (len = (int)stream.Length) > 0)
                 {
-                    MemoryStream ms = (MemoryStream)stream;
+                    var ms = (MemoryStream)stream;
 
                     if (buffer == null)
-                    {   // allocate new buffer
+                    {
+                        // allocate new buffer
                         buffer = ms.ToArray();
                     }
                     else
-                    {   // resize and copy the data
+                    {
+                        // resize and copy the data
                         // note: Array.Resize not available on CF
-                        int offset = buffer.Length;
-                        byte[] tmp = new byte[offset + len];
+                        var offset = buffer.Length;
+                        var tmp = new byte[offset + len];
                         Helpers.BlockCopy(buffer, 0, tmp, 0, offset);
 
 #if PORTABLE || WINRT // no GetBuffer() - fine, we'll use Read instead
@@ -67,7 +68,9 @@ namespace ProtoBuf
 
         void IExtension.EndQuery(Stream stream)
         {
-            using (stream) { } // just clean up
+            using (stream)
+            {
+            } // just clean up
         }
     }
 }

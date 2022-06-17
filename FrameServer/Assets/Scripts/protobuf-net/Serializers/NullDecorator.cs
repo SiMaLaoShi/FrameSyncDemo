@@ -1,27 +1,26 @@
 ﻿#if !NO_RUNTIME
+
 using System;
-
 using ProtoBuf.Meta;
-
 #if FEAT_IKVM
 using Type = IKVM.Reflection.Type;
 using IKVM.Reflection;
 #else
-using System.Reflection;
 #endif
 
 namespace ProtoBuf.Serializers
 {
-    sealed class NullDecorator : ProtoDecoratorBase
+    internal sealed class NullDecorator : ProtoDecoratorBase
     {
         private readonly Type expectedType;
         public const int Tag = 1;
+
         public NullDecorator(TypeModel model, IProtoSerializer tail) : base(tail)
         {
             if (!tail.ReturnsValue)
                 throw new NotSupportedException("NullDecorator only supports implementations that return values");
 
-            Type tailType = tail.ExpectedType;
+            var tailType = tail.ExpectedType;
             if (Helpers.IsValueType(tailType))
             {
 #if NO_GENERICS
@@ -34,17 +33,18 @@ namespace ProtoBuf.Serializers
             {
                 expectedType = tailType;
             }
-
         }
 
         public override Type ExpectedType
         {
             get { return expectedType; }
         }
+
         public override bool ReturnsValue
         {
             get { return true; }
         }
+
         public override bool RequiresOldValue
         {
             get { return true; }
@@ -129,8 +129,8 @@ namespace ProtoBuf.Serializers
                 {
                     ctx.LoadValue(valOrNull);
                 }
-                Compiler.CodeLabel @end = ctx.DefineLabel();
-                ctx.BranchIfFalse(@end, false);
+                Compiler.CodeLabel end = ctx.DefineLabel();
+                ctx.BranchIfFalse(end, false);
                 if (Helpers.IsValueType(expectedType))
                 {
                     ctx.LoadAddress(valOrNull, expectedType);
@@ -142,7 +142,7 @@ namespace ProtoBuf.Serializers
                 }
                 Tail.EmitWrite(ctx, null);
 
-                ctx.MarkLabel(@end);
+                ctx.MarkLabel(end);
 
                 ctx.LoadValue(token);
                 ctx.LoadReaderWriter();
@@ -154,26 +154,21 @@ namespace ProtoBuf.Serializers
 #if !FEAT_IKVM
         public override object Read(object value, ProtoReader source)
         {
-            SubItemToken tok = ProtoReader.StartSubItem(source);
+            var tok = ProtoReader.StartSubItem(source);
             int field;
-            while((field = source.ReadFieldHeader()) > 0)
-            {
-                if(field == Tag) {
+            while ((field = source.ReadFieldHeader()) > 0)
+                if (field == Tag)
                     value = Tail.Read(value, source);
-                } else {
+                else
                     source.SkipField();
-                }
-            }
             ProtoReader.EndSubItem(tok, source);
             return value;
         }
+
         public override void Write(object value, ProtoWriter dest)
         {
-            SubItemToken token = ProtoWriter.StartSubItem(null, dest);
-            if(value != null)
-            {
-                Tail.Write(value, dest);
-            }
+            var token = ProtoWriter.StartSubItem(null, dest);
+            if (value != null) Tail.Write(value, dest);
             ProtoWriter.EndSubItem(token, dest);
         }
 #endif

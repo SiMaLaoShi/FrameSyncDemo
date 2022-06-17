@@ -1,39 +1,51 @@
 ﻿#if !NO_RUNTIME
-using System;
 
+using System;
+using ProtoBuf.Meta;
 #if FEAT_IKVM
 using Type = IKVM.Reflection.Type;
 using IKVM.Reflection;
 #else
-using System.Reflection;
 #endif
 
 namespace ProtoBuf.Serializers
 {
-    sealed class SByteSerializer : IProtoSerializer
+    internal sealed class SByteSerializer : IProtoSerializer
     {
 #if FEAT_IKVM
         readonly Type expectedType;
 #else
-        static readonly Type expectedType = typeof(sbyte);
+        private static readonly Type expectedType = typeof(sbyte);
 #endif
-        public SByteSerializer(ProtoBuf.Meta.TypeModel model)
+        public SByteSerializer(TypeModel model)
         {
 #if FEAT_IKVM
             expectedType = model.MapType(typeof(sbyte));
 #endif
         }
-        public Type ExpectedType { get { return expectedType; } }
+
+        public Type ExpectedType
+        {
+            get { return expectedType; }
+        }
 
 
-        bool IProtoSerializer.RequiresOldValue { get { return false; } }
-        bool IProtoSerializer.ReturnsValue { get { return true; } }
+        bool IProtoSerializer.RequiresOldValue
+        {
+            get { return false; }
+        }
+
+        bool IProtoSerializer.ReturnsValue
+        {
+            get { return true; }
+        }
 #if !FEAT_IKVM
         public object Read(object value, ProtoReader source)
         {
             Helpers.DebugAssert(value == null); // since replaces
             return source.ReadSByte();
         }
+
         public void Write(object value, ProtoWriter dest)
         {
             ProtoWriter.WriteSByte((sbyte)value, dest);
@@ -49,7 +61,6 @@ namespace ProtoBuf.Serializers
             ctx.EmitBasicRead("ReadSByte", ExpectedType);
         }
 #endif
-
     }
 }
 #endif

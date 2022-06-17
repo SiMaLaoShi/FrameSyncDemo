@@ -1,29 +1,39 @@
 ﻿#if !NO_RUNTIME
-using System;
 
+using System;
+using ProtoBuf.Meta;
 #if FEAT_IKVM
 using Type = IKVM.Reflection.Type;
 using IKVM.Reflection;
 #else
-using System.Reflection;
 #endif
 
 namespace ProtoBuf.Serializers
 {
-    sealed class DateTimeSerializer : IProtoSerializer
+    internal sealed class DateTimeSerializer : IProtoSerializer
     {
 #if FEAT_IKVM
         readonly Type expectedType;
 #else
-        static readonly Type expectedType = typeof(DateTime);
+        private static readonly Type expectedType = typeof(DateTime);
 #endif
-        public Type ExpectedType { get { return expectedType; } }
+        public Type ExpectedType
+        {
+            get { return expectedType; }
+        }
 
-        bool IProtoSerializer.RequiresOldValue { get { return false; } }
-        bool IProtoSerializer.ReturnsValue { get { return true; } }
+        bool IProtoSerializer.RequiresOldValue
+        {
+            get { return false; }
+        }
+
+        bool IProtoSerializer.ReturnsValue
+        {
+            get { return true; }
+        }
 
         private readonly bool includeKind;
-        public DateTimeSerializer(ProtoBuf.Meta.TypeModel model)
+        public DateTimeSerializer(TypeModel model)
         {
 #if FEAT_IKVM
             expectedType = model.MapType(typeof(DateTime));
@@ -36,9 +46,10 @@ namespace ProtoBuf.Serializers
             Helpers.DebugAssert(value == null); // since replaces
             return BclHelpers.ReadDateTime(source);
         }
+
         public void Write(object value, ProtoWriter dest)
         {
-            if(includeKind)
+            if (includeKind)
                 BclHelpers.WriteDateTimeWithKind((DateTime)value, dest);
             else
                 BclHelpers.WriteDateTime((DateTime)value, dest);
@@ -54,7 +65,6 @@ namespace ProtoBuf.Serializers
             ctx.EmitBasicRead(ctx.MapType(typeof(BclHelpers)), "ReadDateTime", ExpectedType);
         }
 #endif
-
     }
 }
 #endif

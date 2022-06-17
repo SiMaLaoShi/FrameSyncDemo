@@ -5,41 +5,47 @@ using ProtoBuf.Meta;
 using Type = IKVM.Reflection.Type;
 using IKVM.Reflection;
 #else
-using System.Reflection;
 #endif
 
 
 namespace ProtoBuf.Serializers
 {
-    sealed class DefaultValueDecorator : ProtoDecoratorBase
+    internal sealed class DefaultValueDecorator : ProtoDecoratorBase
     {
+        public override Type ExpectedType
+        {
+            get { return Tail.ExpectedType; }
+        }
 
-        public override Type ExpectedType { get { return Tail.ExpectedType; } }
-        public override bool RequiresOldValue { get { return Tail.RequiresOldValue; } }
-        public override bool ReturnsValue { get { return Tail.ReturnsValue; } }
+        public override bool RequiresOldValue
+        {
+            get { return Tail.RequiresOldValue; }
+        }
+
+        public override bool ReturnsValue
+        {
+            get { return Tail.ReturnsValue; }
+        }
+
         private readonly object defaultValue;
         public DefaultValueDecorator(TypeModel model, object defaultValue, IProtoSerializer tail) : base(tail)
         {
             if (defaultValue == null) throw new ArgumentNullException("defaultValue");
-            Type type = model.MapType(defaultValue.GetType());
+            var type = model.MapType(defaultValue.GetType());
             if (type != tail.ExpectedType
 #if FEAT_IKVM // in IKVM, we'll have the default value as an underlying type
                 && !(tail.ExpectedType.IsEnum && type == tail.ExpectedType.GetEnumUnderlyingType())
 #endif
-                )
-            {
+               )
                 throw new ArgumentException("Default value is of incorrect type", "defaultValue");
-            }
             this.defaultValue = defaultValue;
         }
 #if !FEAT_IKVM
         public override void Write(object value, ProtoWriter dest)
         {
-            if (!object.Equals(value, defaultValue))
-            {
-                Tail.Write(value, dest);
-            }
+            if (!Equals(value, defaultValue)) Tail.Write(value, dest);
         }
+
         public override object Read(object value, ProtoReader source)
         {
             return Tail.Read(value, source);
@@ -266,6 +272,6 @@ namespace ProtoBuf.Serializers
             Tail.EmitRead(ctx, valueFrom);
         }
 #endif
-            }
+    }
 }
 #endif

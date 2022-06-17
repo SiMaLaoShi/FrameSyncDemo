@@ -1,30 +1,33 @@
 ﻿using System;
-
+using ProtoBuf.Meta;
 #if !NO_RUNTIME
 
 #if FEAT_IKVM
 using Type = IKVM.Reflection.Type;
 using IKVM.Reflection;
 #else
-using System.Reflection;
 #endif
 
 namespace ProtoBuf.Serializers
 {
-    sealed class SystemTypeSerializer : IProtoSerializer
+    internal sealed class SystemTypeSerializer : IProtoSerializer
     {
 #if FEAT_IKVM
         readonly Type expectedType;
 #else
-        static readonly Type expectedType = typeof(System.Type);
+        private static readonly Type expectedType = typeof(Type);
 #endif
-        public SystemTypeSerializer(ProtoBuf.Meta.TypeModel model)
+        public SystemTypeSerializer(TypeModel model)
         {
 #if FEAT_IKVM
             expectedType = model.MapType(typeof(System.Type));
 #endif
         }
-        public Type ExpectedType { get { return expectedType; } }
+
+        public Type ExpectedType
+        {
+            get { return expectedType; }
+        }
 
 #if !FEAT_IKVM
         void IProtoSerializer.Write(object value, ProtoWriter dest)
@@ -38,8 +41,15 @@ namespace ProtoBuf.Serializers
             return source.ReadType();
         }
 #endif
-        bool IProtoSerializer.RequiresOldValue { get { return false; } }
-        bool IProtoSerializer.ReturnsValue { get { return true; } }
+        bool IProtoSerializer.RequiresOldValue
+        {
+            get { return false; }
+        }
+
+        bool IProtoSerializer.ReturnsValue
+        {
+            get { return true; }
+        }
 
 #if FEAT_COMPILER
         void IProtoSerializer.EmitWrite(Compiler.CompilerContext ctx, Compiler.Local valueFrom)
