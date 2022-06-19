@@ -27,12 +27,17 @@ FrameClient是客户端的demo
 
 ### 回放
 
-先走正常模式点击游戏结束，就完成了一局游戏的录制，最终在在FrameClient的目录下生成了3个replay文件，
+先走正常模式点击游戏结束，就完成了一局游戏的录制，最终在在FrameClient的replay目录下生成1个文件夹3个replay文件，
 
-![image-20220619100118776](pic/image-20220619100118776.png)
+![image-20220619163837217](pic/image-20220619163837217.png)
 
-- replay_1.byte 是每个操作的二进制文件
-- replay_1.json 是记录每个操作的消息id
-- replay_1_role.json 是记录当局的角色
+- replay_xx.byte 是每个操作的二进制文件
+- replay_xx.json 是记录每个操作的消息id
+- replay_xx_role.json 是记录当局的角色
 
 使用回放功能的话，就直接打开ReplayInit场景就行了。
+
+
+
+![](pic/回放演示.gif)
+
