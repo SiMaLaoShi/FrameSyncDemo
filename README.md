@@ -29,7 +29,7 @@ FrameClient是客户端的demo
 
 先走正常模式点击游戏结束，就完成了一局游戏的录制，最终在在FrameClient的目录下生成了3个replay文件，
 
-![image-20220619100118776](pic\image-20220619100118776.png)
+![image-20220619100118776](pic/image-20220619100118776.png)
 
 - replay_1.byte 是每个操作的二进制文件
 - replay_1.json 是记录每个操作的消息id
