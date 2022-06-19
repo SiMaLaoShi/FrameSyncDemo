@@ -37,7 +37,8 @@ FrameClient是客户端的demo
 
 使用回放功能的话，就直接打开ReplayInit场景就行了。
 
-
+单人回放演示
 
 ![](pic/回放演示.gif)
 
+![多人回放演示](pic/多人回放演示.gif)
