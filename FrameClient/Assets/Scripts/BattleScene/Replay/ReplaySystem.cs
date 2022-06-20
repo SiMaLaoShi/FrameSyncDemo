@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Lib.Runtime;
 using LitJson;
 using PBBattle;
 using PBCommon;
@@ -28,6 +29,13 @@ namespace BattleScene.Replay
         private TcpEnterBattle tcpEnterBattle;
         public bool IsReplayIng { get; set; }
 
+        private const string ReplayName = "replay";
+        public readonly string SaveReplayDir = Path.Combine(Environment.CurrentDirectory, ReplayName);
+        public override void OnSingletonInit()
+        {
+            CommonUtility.MkdirNotDelete(SaveReplayDir);
+        }
+
         public void AddTcpEnterBattle(TcpEnterBattle tcpEnterBattle)
         {
             this.tcpEnterBattle = tcpEnterBattle;
@@ -50,9 +58,11 @@ namespace BattleScene.Replay
 
         public void SaveReplayInfo()
         {
-            var bytePath = Path.Combine(Environment.CurrentDirectory, string.Format("replay_{0}.byte", 1));
-            var jsonPath = Path.Combine(Environment.CurrentDirectory, string.Format("replay_{0}.json", 1));
-            var rolePath = Path.Combine(Environment.CurrentDirectory, string.Format("replay_{0}_role.byte", 1));
+            var date = DateTime.Now.ToLocalTime().ToString("yyyyMMddHHmmss");
+            var directoryInfo = CommonUtility.Mkdir(Path.Combine(SaveReplayDir, date));
+            var bytePath = Path.Combine(directoryInfo.FullName, string.Format("replay_{0}.byte", date));
+            var jsonPath = Path.Combine(directoryInfo.FullName, string.Format("replay_{0}.json", date));
+            var rolePath = Path.Combine(directoryInfo.FullName, string.Format("replay_{0}_role.byte", date));
             File.WriteAllText(jsonPath, JsonMapper.ToJson(frameInfos));
             File.WriteAllBytes(rolePath, CSData.SerializeData(tcpEnterBattle));
             File.WriteAllBytes(bytePath, bytes.ToArray());
@@ -60,12 +70,13 @@ namespace BattleScene.Replay
             Debug.Log("保存回放文件成功 " + bytePath);
         }
 
-        public void StartReplayInfo()
+        public void StartReplayInfo(string date)
         {
-            var bytePath = Path.Combine(Environment.CurrentDirectory, string.Format("replay_{0}.byte", 1));
-            var jsonPath = Path.Combine(Environment.CurrentDirectory, string.Format("replay_{0}.json", 1));
+            var dir = Path.Combine(SaveReplayDir, date);
+            var bytePath = Path.Combine(dir, string.Format("replay_{0}.byte", date));
+            var jsonPath = Path.Combine(dir, string.Format("replay_{0}.json", date));
             var infos = JsonMapper.ToObject<List<FrameInfo>>(File.ReadAllText(jsonPath));
-            var rolePath = Path.Combine(Environment.CurrentDirectory, string.Format("replay_{0}_role.byte", 1));
+            var rolePath = Path.Combine(dir, string.Format("replay_{0}_role.byte", date));
             tcpEnterBattle = CSData.DeserializeData<TcpEnterBattle>(File.ReadAllBytes(rolePath));
             frameInfos = infos;
             BattleData.Instance.UpdateBattleInfo(tcpEnterBattle.randSeed, tcpEnterBattle.battleUserInfo);

@@ -100,7 +100,9 @@ public class BattleCon : MonoBehaviour
 
     private IEnumerator WaitForFirstMessage()
     {
-        yield return new WaitUntil(() => { return BattleData.Instance.GetFrameDataNum() > 0; });
+        Debug.Log("WaitForFirstMessage");
+        yield return new WaitUntil(() => BattleData.Instance.GetFrameDataNum() > 0);
+        Debug.Log("InvokeRepeating LogicUpdate");
         InvokeRepeating("LogicUpdate", 0f, 0.020f);
 
         if (delegate_readyOver != null) delegate_readyOver();

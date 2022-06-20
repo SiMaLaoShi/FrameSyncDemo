@@ -1,7 +1,9 @@
-﻿using PBCommon;
+﻿using System;
+using PBCommon;
 using PBLogin;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityGameFramework.Runtime;
 
 public class LoginCon : MonoBehaviour
 {
@@ -10,6 +12,12 @@ public class LoginCon : MonoBehaviour
 
     private void Start()
     {
+#if !UNITY_EDITOR
+        var debug = new GameObject();
+        DontDestroyOnLoad(debug);
+        debug.AddComponent<DebuggerComponent>();
+#endif
+        
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Application.targetFrameRate = 30;
 
@@ -27,9 +35,9 @@ public class LoginCon : MonoBehaviour
     public void OnClickLogin()
     {
         Debug.Log(inputField.text);
-
+        
         waitTip.SetActive(true);
-
+        
         var _ip = inputField.text;
         MarsTcp.Instance.ConnectServer(_ip, _result =>
         {

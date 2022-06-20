@@ -22,15 +22,7 @@ public abstract class Singleton<T> : ISingleton where T : Singleton<T>, new()
     /// </summary>
     public static T Instance
     {
-        get
-        {
-            if (mInstance == null)
-            {
-                mInstance = new T();
-            }
-
-            return mInstance;
-        }
+        get { return mInstance ?? (mInstance = new T()); }
     }
 
     /// <summary>

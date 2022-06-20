@@ -55,7 +55,7 @@ public class MarsUdp
         try
         {
             isRun = false;
-            isRecv = false;
+            isRecv = false; 
 //			if (sendEndPort != null) {
 //				UdpManager.Instance.CloseUdpClient();
 //				sendClient = null;
@@ -93,6 +93,7 @@ public class MarsUdp
     {
         isRecv = true;
         var endpoint = new IPEndPoint(IPAddress.Parse(NetGlobal.Instance().serverIP), UdpManager.Instance.localPort);
+        Debug.Log(string.Format("RecvThread ip:{0} port:{1}", NetGlobal.Instance().serverIP, UdpManager.Instance.localPort));
         while (isRecv)
             try
             {
@@ -112,6 +113,7 @@ public class MarsUdp
             }
             catch (Exception ex)
             {
+                isRecv = false;
                 Debug.Log("udpClient接收数据异常:" + ex.Message);
             }
 

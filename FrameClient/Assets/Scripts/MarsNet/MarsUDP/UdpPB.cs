@@ -2,6 +2,7 @@
 using BattleScene.Replay;
 using PBBattle;
 using PBCommon;
+using UnityEngine;
 
 public class UdpPB
 {
@@ -124,6 +125,7 @@ public class UdpPB
         {
             case SCID.UDP_BATTLE_START:
             {
+                Debug.Log("Recv UDP_BATTLE_START");
                 var pb_ReceiveMes = CSData.DeserializeData<UdpBattleStart>(bodyData);
                 ReplaySystem.Instance.AddFrame(BattleData.Instance.FrameId, bodyData, SCID.UDP_BATTLE_START);
                 NetGlobal.Instance().AddAction(() => { mes_battle_start(pb_ReceiveMes); });

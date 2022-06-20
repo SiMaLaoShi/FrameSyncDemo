@@ -17,11 +17,5 @@ namespace BattleScene.Replay
             if (ReplaySystem.Instance.IsReplayIng)
                 ReplaySystem.Instance.ReadByte();
         }
-
-        private void OnGUI()
-        {
-            if (GUILayout.Button("回放"))
-                ReplaySystem.Instance.StartReplayInfo();
-        }
     }
 }

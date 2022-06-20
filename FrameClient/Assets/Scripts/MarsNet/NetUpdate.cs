@@ -9,6 +9,7 @@ public class NetUpdate : MonoBehaviour
 
     private void OnApplicationQuit()
     {
+        UdpManager.Instance.Destory();
         MarsTcp.Instance.EndClient();
         UdpPB.Instance().Destory();
     }
