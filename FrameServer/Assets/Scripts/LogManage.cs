@@ -3,9 +3,33 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditor.Callbacks;
 
+public enum CLogType
+{
+    /// <summary>
+    ///   <para>LogType used for Errors.</para>
+    /// </summary>
+    Error,
+    /// <summary>
+    ///   <para>LogType used for Asserts. (These could also indicate an error inside Unity itself.)</para>
+    /// </summary>
+    Assert,
+    /// <summary>
+    ///   <para>LogType used for Warnings.</para>
+    /// </summary>
+    Warning,
+    /// <summary>
+    ///   <para>LogType used for regular log messages.</para>
+    /// </summary>
+    Log,
+    /// <summary>
+    ///   <para>LogType used for Exceptions.</para>
+    /// </summary>
+    Exception,
+}
+
 public class LogManage
 {
-    public delegate void DelegateLogChange(string _str);
+    public delegate void DelegateLogChange(string _str, CLogType logType);
 
     private static LogManage instance;
     public DelegateLogChange logChange;
@@ -29,9 +53,9 @@ public class LogManage
         instance = null;
     }
 
-    public void AddLog(string _str)
+    public void AddLog(string _str, CLogType logType = CLogType.Log)
     {
-        if (logChange != null) logChange(_str);
+        if (logChange != null) logChange(_str, logType);
     }
 }
 #if UNITY_EDITOR

@@ -58,7 +58,7 @@ public class ServerTcp
         }
         catch (Exception ex)
         {
-            LogManage.Instance.AddLog("服务器启动失败:" + ex.Message);
+            LogManage.Instance.AddLog("服务器启动失败:" + ex.Message, CLogType.Exception);
         }
     }
 
@@ -77,7 +77,7 @@ public class ServerTcp
             }
             catch (Exception ex)
             {
-                LogManage.Instance.AddLog("监听失败:" + ex.Message);
+                LogManage.Instance.AddLog("监听失败:" + ex.Message, CLogType.Exception);
             }
     }
 

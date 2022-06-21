@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -63,9 +64,30 @@ public class UICon : MonoBehaviour
         logContent.sizeDelta = new Vector2(logContent.sizeDelta.x, logTextNum * logTextHeght);
     }
 
-    private void LogChange(string _log)
+    private void LogChange(string _log, CLogType logType = CLogType.Log)
     {
+        
         logs.Add(_log);
-        Debug.Log(_log);
+        switch (logType)
+        {
+            case CLogType.Error:
+                Debug.LogError(_log);
+                break;
+            case CLogType.Assert:
+                Debug.LogAssertionFormat(_log);
+                break;
+            case CLogType.Warning:
+                Debug.LogWarning(_log);
+                break;
+            case CLogType.Log:
+                Debug.Log(_log);
+                break;
+            case CLogType.Exception:
+                Debug.LogErrorFormat(_log);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException("logType", logType, null);
+        }
+        
     }
 }

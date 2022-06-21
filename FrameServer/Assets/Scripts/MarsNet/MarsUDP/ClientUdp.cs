@@ -53,7 +53,7 @@ public class ClientUdp
         }
         catch (Exception ex)
         {
-            LogManage.Instance.AddLog("udp连接关闭异常:" + ex.Message);
+            LogManage.Instance.AddLog("udp连接关闭异常:" + ex.Message, CLogType.Exception);
         }
     }
 
@@ -73,7 +73,7 @@ public class ClientUdp
             }
             catch (Exception ex)
             {
-                LogManage.Instance.AddLog("udp发送失败:" + ex.Message);
+                LogManage.Instance.AddLog("udp发送失败:" + ex.Message, CLogType.Exception);
             }
     }
 
@@ -85,9 +85,11 @@ public class ClientUdp
 
     private void RecvThread()
     {
+        LogManage.Instance.AddLog(string.Format("RecvThread ip:{0} port:{1}", serverIp, UdpManager.Instance.recvPort));
         var endpoint = new IPEndPoint(IPAddress.Parse(serverIp), UdpManager.Instance.recvPort);
         while (isRun)
-            try
+        {
+            /*try
             {
                 var buf = sendClient.Receive(ref endpoint);
 
@@ -111,8 +113,26 @@ public class ClientUdp
             }
             catch (Exception ex)
             {
-                LogManage.Instance.AddLog("udpClient接收数据异常:" + ex.Message);
+                LogManage.Instance.AddLog("udpClient接收数据异常:" + ex.Message, CLogType.Exception);
+            }*/
+            var buf = sendClient.Receive(ref endpoint);
+
+            if (sendEndPort == null)
+            {
+                LogManage.Instance.AddLog("接收客户端udp信息:" + endpoint.Port);
+                sendPortNum = endpoint.Port;
             }
+
+            var packMessageId = buf[PackageConstant.PackMessageIdOffset]; //消息id (1个字节)
+            var packlength = BitConverter.ToInt16(buf, PackageConstant.PacklengthOffset); //消息包长度 (2个字节)
+            var bodyDataLenth = packlength - PackageConstant.PacketHeadLength;
+            var bodyData = new byte[bodyDataLenth];
+            Array.Copy(buf, PackageConstant.PacketHeadLength, bodyData, 0, bodyDataLenth);
+
+            delegate_analyze_message((CSID)packMessageId, bodyData);
+           
+        }
+          
 
         LogManage.Instance.AddLog("udp接收线程退出~~~~~");
     }

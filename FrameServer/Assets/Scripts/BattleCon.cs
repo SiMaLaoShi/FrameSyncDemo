@@ -155,7 +155,11 @@ public class BattleCon
         {
             var _btData = new UdpBattleStart();
             var _data = CSData.GetSendMessage(_btData, SCID.UDP_BATTLE_START);
-            foreach (var item in dic_udp) item.Value.SendMessage(_data);
+            foreach (var item in dic_udp)
+            {
+                LogManage.Instance.AddLog(string.Format("send {0} SCID.UDP_BATTLE_START", item.Value.userUid));
+                item.Value.SendMessage(_data);
+            }
 
             var _allData = true;
             for (var i = 0; i < frameOperation.Length; i++)

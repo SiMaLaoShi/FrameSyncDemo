@@ -11,6 +11,7 @@ public class ServerUpdate : MonoBehaviour
     {
         LogManage.Instance.Destory();
         ServerTcp.Instance.EndServer();
+        UdpManager.Instance.Destory();
         BattleManage.Instance.Destroy();
     }
 }
